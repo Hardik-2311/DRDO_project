@@ -1,8 +1,7 @@
 import pandas as pd
 
 # Load the existing CSV file
-input_csv_file = 'combined_output.csv'  # Replace with your existing CSV file name
-output_csv_file = 'balanced_data.csv'  # Name of the output CSV file
+input_csv_file = 'sorted_output_with_img_name.csv'  # Replace with your existing CSV file name
 
 # Read the CSV file into a DataFrame
 df = pd.read_csv(input_csv_file)
@@ -12,23 +11,48 @@ print("Original Data:")
 print(df.head())
 
 # Assuming the last column is the target class column
-target_column = 'Class Identifier' 
-  # Change this if your target column is named differently
+target_column = 'Class Identifier'  # Change this if your target column is named differently
 
-# Create a new DataFrame to store the sampled data
-sampled_data = pd.DataFrame()
+def adjust_overlapping_values(df, target_column):
+    # Create a copy of the DataFrame to avoid modifying the original
+    adjusted_df = df.copy()
+    
+    # Loop through each feature (column) except the target column
+    for col in df.columns:
+        if col != target_column:  # Exclude target column
+            # Identify overlapping values
+            unique_values = df[col].unique()
+            for value in unique_values:
+                # Get classes for the given value
+                classes = df[df[col] == value][target_column].unique()
+                if len(classes) > 1:
+                    print(f"Overlapping value found: {value} for classes: {classes.tolist()}")
+                    # Adjust values for classes except the first one
+                    for idx, class_id in enumerate(classes):
+                        if idx == 0:
+                            continue  # Retain the original value for the first class
+                        else:
+                            # Calculate new value with a 0.001 difference
+                            new_value = value + 0.001 * idx  # Ensure it's different from the original
+                            # Update the adjusted DataFrame
+                            adjusted_df.loc[
+                                (adjusted_df[col] == value) & 
+                                (adjusted_df[target_column] == class_id), 
+                                col
+                            ] = new_value
+                            print(f"Adjusted value: {value} to {new_value} for class: {class_id}")
 
-# Loop through each class and sample 200 unique entries
-for class_label in df[target_column].unique():
-    class_data = df[df[target_column] == class_label]
-    # Sample 200 unique entries without replacement
-    sampled_class_data = class_data.sample(n=1650, random_state=42)  # Set random_state for reproducibility
-    sampled_data = pd.concat([sampled_data, sampled_class_data])
+    return adjusted_df
 
-# Reset index of the final DataFrame
-sampled_data.reset_index(drop=True, inplace=True)
+# Adjust overlapping values
+adjusted_data = adjust_overlapping_values(df, target_column)
 
-# Save the sampled data to a new CSV file
-sampled_data.to_csv(output_csv_file, index=False)
+# Display results
+print("Adjusted Data:")
+print(adjusted_data.head())
 
-print(f"Sampled data saved to {output_csv_file}.")
+# Save the adjusted data to a new CSV file (optional)
+output_csv_file = 'adjusted_output.csv'  # Name of the output CSV file
+adjusted_data.to_csv(output_csv_file, index=False)
+
+print(f"Adjusted data saved to {output_csv_file}.")

@@ -31,7 +31,7 @@ CYAN = "\033[36m"
 MAGENTA = "\033[35m"
 RED = "\033[31m"
 
-MAX_WORKERS = 10
+MAX_WORKERS = 20
 
 
 # remove .bin
@@ -102,7 +102,7 @@ def predict_class(binary_data, file_name):
 
     # Load the pre-trained XGBoost model
     loaded_model = xgb.Booster()
-    loaded_model.load_model("xgboost_new.model")
+    loaded_model.load_model("xgboost_final.json")
 
     print(f"{GREEN}XGBoost model loaded for file: {file_name}.{RESET}")
 
