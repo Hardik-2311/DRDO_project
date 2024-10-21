@@ -102,7 +102,7 @@ def predict_class(binary_data, file_name):
 
     # Load the pre-trained XGBoost model
     loaded_model = xgb.Booster()
-    loaded_model.load_model("models\xgboost_model.model")
+    loaded_model.load_model("xgboost_model.model")  # Use forward slash here
 
     print(f"{GREEN}XGBoost model loaded for file: {file_name}.{RESET}")
 
@@ -129,7 +129,6 @@ def predict_class(binary_data, file_name):
     print(y_pred)
 
     # Print and log the predicted class with the file name
-    # predicted_class = int(y_pred[0]) + 1
     predicted_class = np.argmax(y_prob[0]) + 1
 
     # Confidence of the prediction (highest probability value)
@@ -148,7 +147,7 @@ def train_data(binary_data, file_name):
     result = [compute_final_p_value(value) for key, value in train_result.items()]
     result_copy = result.copy()
     loaded_model = xgb.Booster()
-    loaded_model.load_model("models\xgboost_model.model")
+    loaded_model.load_model("xgboost_model.model")  # Use forward slash here
 
     # Predict the class using XGBoost
     X_test = pd.DataFrame([result], columns=list(train_result.keys()))
@@ -169,7 +168,7 @@ def train_data(binary_data, file_name):
     result_string = ",".join(map(str, result_copy))
     
     # append the newly added data
-    append_to_csv("dataset\final.csv", result_string)
+    append_to_csv("final.csv", result_string)  # Use forward slash here
 
     # retrain your model
     retrain_model(result_copy)
@@ -190,7 +189,7 @@ def retrain_model(new_data):
     
     # Load the existing model to get the feature importance
     loaded_model = xgb.Booster()
-    loaded_model.load_model("models\xgboost_model.model")
+    loaded_model.load_model("xgboost_model.model")  # Use forward slash here
 
     test_results = new_data[:16]  # First 16 elements are the test results
     class_label = int(new_data[16]) - 1  # The 17th value is the class label (adjust to be 0-indexed)
@@ -229,7 +228,7 @@ def retrain_model(new_data):
     loaded_model = xgb.train(params, dtrain, num_boost_round=10, xgb_model=loaded_model)
 
     # Save the updated model
-    loaded_model.save_model("models\xgboost_model.model")
+    loaded_model.save_model("models/xgboost_model.model")  # Use forward slash here
     print(f"{GREEN}Model updated and saved successfully with the new data.{RESET}")
 
 
