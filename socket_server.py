@@ -148,20 +148,10 @@ def train_data(binary_data, file_name):
     result = [compute_final_p_value(value) for key, value in train_result.items()]
     result_copy = result.copy()
     loaded_model = xgb.Booster()
-    loaded_model.load_model("xgboost_prob.model")
-    importance_dict = loaded_model.get_score(importance_type="gain")
-    weighted_sum = sum(
-        [
-            importance_dict.get(test_name, 0) * value
-            for test_name, value in zip(train_result.keys(), result)
-        ]
-    )
-    result.append(weighted_sum)
+    loaded_model.load_model("xgboost_final.json")
 
     # Predict the class using XGBoost
-    X_test = pd.DataFrame(
-        [result], columns=list(train_result.keys()) + ["weighted_sum"]
-    )
+    X_test = pd.DataFrame([result], columns=list(train_result.keys()))
     dtest = xgb.DMatrix(X_test)
     y_pred = loaded_model.predict(dtest)
 
@@ -179,7 +169,7 @@ def train_data(binary_data, file_name):
     result_string = ",".join(map(str, result_copy))
     
     # append the newly added data
-    # append_to_csv("combined_output.csv", result_string)
+    append_to_csv("sorted_output_with_img_name.csv", result_string)
 
     # retrain your model
     retrain_model(result_copy)
@@ -200,7 +190,7 @@ def retrain_model(new_data):
     
     # Load the existing model to get the feature importance
     loaded_model = xgb.Booster()
-    loaded_model.load_model("xgboost_prob.model")
+    loaded_model.load_model("xgboost_final.json")
 
     test_results = new_data[:16]  # First 16 elements are the test results
     class_label = int(new_data[16]) - 1  # The 17th value is the class label (adjust to be 0-indexed)
@@ -218,20 +208,8 @@ def retrain_model(new_data):
         "Cumulative Sums (Backward) Test", "Random Excursions Test", "Random Excursions Variant Test"
     ]
 
-    # Compute weighted sum based on feature importance
-    weighted_sum = sum(
-        [
-            importance_dict.get(test_name, 0) * value
-            for test_name, value in zip(test_names, test_results)
-        ]
-    )
 
-
-    # Append the weighted sum to the test results
-    test_results.append(weighted_sum)
-
-    # Prepare the data for XGBoost (16 features + 1 weighted sum = 17 features)
-    X_train = pd.DataFrame([test_results], columns=test_names + ["weighted_sum"])
+    X_train = pd.DataFrame([test_results], columns=test_names)
     
     y_train = pd.Series([class_label])  # Target class
 
@@ -251,7 +229,7 @@ def retrain_model(new_data):
     loaded_model = xgb.train(params, dtrain, num_boost_round=10, xgb_model=loaded_model)
 
     # Save the updated model
-    loaded_model.save_model("xgboost_prob.model")
+    loaded_model.save_model("xgboost_final.json")
     print(f"{GREEN}Model updated and saved successfully with the new data.{RESET}")
 
 
