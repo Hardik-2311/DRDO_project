@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 # Load the data
-df = pd.read_csv('balanced_data.csv')
+df = pd.read_csv('final.csv')
 df.drop('Image Name', axis=1, inplace=True)
 
 # Print the DataFrame head and columns to check structure

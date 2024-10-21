@@ -102,7 +102,7 @@ def predict_class(binary_data, file_name):
 
     # Load the pre-trained XGBoost model
     loaded_model = xgb.Booster()
-    loaded_model.load_model("xgboost_final.json")
+    loaded_model.load_model("xgboost_model.model")
 
     print(f"{GREEN}XGBoost model loaded for file: {file_name}.{RESET}")
 
@@ -148,7 +148,7 @@ def train_data(binary_data, file_name):
     result = [compute_final_p_value(value) for key, value in train_result.items()]
     result_copy = result.copy()
     loaded_model = xgb.Booster()
-    loaded_model.load_model("xgboost_final.json")
+    loaded_model.load_model("xgboost_model.model")
 
     # Predict the class using XGBoost
     X_test = pd.DataFrame([result], columns=list(train_result.keys()))
@@ -169,7 +169,7 @@ def train_data(binary_data, file_name):
     result_string = ",".join(map(str, result_copy))
     
     # append the newly added data
-    append_to_csv("sorted_output_with_img_name.csv", result_string)
+    append_to_csv("final.csv", result_string)
 
     # retrain your model
     retrain_model(result_copy)
@@ -190,7 +190,7 @@ def retrain_model(new_data):
     
     # Load the existing model to get the feature importance
     loaded_model = xgb.Booster()
-    loaded_model.load_model("xgboost_final.json")
+    loaded_model.load_model("xgboost_model.model")
 
     test_results = new_data[:16]  # First 16 elements are the test results
     class_label = int(new_data[16]) - 1  # The 17th value is the class label (adjust to be 0-indexed)
@@ -229,7 +229,7 @@ def retrain_model(new_data):
     loaded_model = xgb.train(params, dtrain, num_boost_round=10, xgb_model=loaded_model)
 
     # Save the updated model
-    loaded_model.save_model("xgboost_final.json")
+    loaded_model.save_model("xgboost_model.model")
     print(f"{GREEN}Model updated and saved successfully with the new data.{RESET}")
 
 
