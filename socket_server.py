@@ -8,18 +8,18 @@ from concurrent.futures import ThreadPoolExecutor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 
-# Placeholder for NIST test functions and XGBoost model
-from tests.FrequencyTest import FrequencyTest
-from tests.RunTest import RunTest
-from tests.Matrix import Matrix
-from tests.Spectral import SpectralTest
-from tests.TemplateMatching import TemplateMatching
-from tests.Universal import Universal
-from tests.Complexity import ComplexityTest
-from tests.Serial import Serial
-from tests.ApproximateEntropy import ApproximateEntropy
-from tests.CumulativeSum import CumulativeSums
-from tests.RandomExcursions import RandomExcursions
+# Placeholder for  test functions and XGBoost model
+from features.FrequencyTest import FrequencyTest
+from features.RunTest import RunTest
+from features.Matrix import Matrix
+from features.Spectral import SpectralTest
+from features.TemplateMatching import TemplateMatching
+from features.Universal import Universal
+from features.Complexity import ComplexityTest
+from features.Serial import Serial
+from features.ApproximateEntropy import ApproximateEntropy
+from features.CumulativeSum import CumulativeSums
+from features.RandomExcursions import RandomExcursions
 
 
 # Color codes for terminal print
@@ -39,9 +39,9 @@ def remove_bin_extension(file_name):
     return file_name.rsplit(".", 1)[0]
 
 
-# tests
+# features
 def features_extraction(binary_data):
-    tests = {
+    features = {
         "Frequency (Monobit) Test": FrequencyTest.monobit_test(binary_data),
         "Block Frequency Test": FrequencyTest.block_frequency(binary_data),
         "Run Test": RunTest.run_test(binary_data),
@@ -73,7 +73,7 @@ def features_extraction(binary_data):
         "Random Excursions Test": RandomExcursions.random_excursions_test(binary_data),
         "Random Excursions Variant Test": RandomExcursions.variant_test(binary_data),
     }
-    return tests
+    return features
 
 
 # for p values
@@ -106,13 +106,13 @@ def predict_class(binary_data, file_name):
 
     print(f"{GREEN}XGBoost model loaded for file: {file_name}.{RESET}")
 
-    # Perform NIST tests
-    print(f"{CYAN}Running NIST tests for file: {file_name}...{RESET}")
-    test_start_time = time.time()  # Start timing NIST tests
+    # Perform  features
+    print(f"{CYAN}Running  features for file: {file_name}...{RESET}")
+    test_start_time = time.time()  # Start timing  features
     test_results = features_extraction(binary_data)
     result = [compute_final_p_value(value) for key, value in test_results.items()]
     print(
-        f"{MAGENTA}NIST tests completed in {time.time() - test_start_time:.2f} seconds for file: {file_name}.{RESET}"
+        f"{MAGENTA} features completed in {time.time() - test_start_time:.2f} seconds for file: {file_name}.{RESET}"
     )
     
     print(np.array(result)) 
