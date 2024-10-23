@@ -1,4 +1,4 @@
-from features.BinaryMatrix import BinaryMatrix as bm
+from features.feature_13 import BinaryMatrix as bm
 from math import exp as exp
 from math import floor as floor
 from numpy import zeros as zeros

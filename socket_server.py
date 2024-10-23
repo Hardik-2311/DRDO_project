@@ -9,17 +9,17 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 # Placeholder for  test functions and XGBoost model
-from features.FrequencyTest import Frequency
-from features.RunTest import Run
-from features.Matrix import Matrix
-from features.Spectral import Spectral
-from features.TemplateMatching import TemplateMatching
-from features.Universal import Universal
-from features.Complexity import Complexity
-from features.Serial import Serial
-from features.ApproximateEntropy import ApproximateEntropy
-from features.CumulativeSum import CumulativeSums
-from features.RandomExcursions import RandomExcursions
+from features.feature_2 import Frequency
+from features.feature_5 import Run
+from features.feature_3 import Matrix
+from features.feature_7 import Spectral
+from features.feature_8 import TemplateMatching
+from features.feature_9 import Universal
+from features.feature_12 import Complexity
+from features.feature_6 import Serial
+from features.feature_1 import ApproximateEntropy
+from features.feature_10 import CumulativeSums
+from features.feature_4 import RandomExcursions
 
 
 # Color codes for terminal print
@@ -45,13 +45,9 @@ def features_extraction(binary_data):
         "Frequency (Monobit) Test": Frequency.monobit(binary_data),
         "Block Frequency Test": Frequency.block_frequency(binary_data),
         "Run Test": Run.run(binary_data),
-        "Longest Run of Ones in a Block Test": Run.longest_one_block(
-            binary_data
-        ),
+        "Longest Run of Ones in a Block Test": Run.longest_one_block(binary_data),
         "Binary Matrix Rank Test": Matrix.binary_matrix_rank(binary_data),
-        "Discrete Fourier Transform (Spectral) Test": Spectral.spectral(
-            binary_data
-        ),
+        "Discrete Fourier Transform (Spectral) Test": Spectral.spectral(binary_data),
         "Non-Overlapping Template Matching Test": TemplateMatching.non_overlapping(
             binary_data
         ),
@@ -61,9 +57,7 @@ def features_extraction(binary_data):
         "Universal Statistical Test": Universal.statistical(binary_data),
         "Linear Complexity Test": Complexity.linear_complexity(binary_data),
         "Serial Test": Serial.serial(binary_data),
-        "Approximate Entropy Test": ApproximateEntropy.approximate_entropy(
-            binary_data
-        ),
+        "Approximate Entropy Test": ApproximateEntropy.approximate_entropy(binary_data),
         "Cumulative Sums (Forward) Test": CumulativeSums.cumulative_sums(
             binary_data, 0
         ),
@@ -114,15 +108,13 @@ def predict_class(binary_data, file_name):
     print(
         f"{MAGENTA} features completed in {time.time() - test_start_time:.2f} seconds for file: {file_name}.{RESET}"
     )
-    
-    print(np.array(result)) 
-    
-    if np.sum(np.array(result)<0.01)>=3:
+
+    print(np.array(result))
+
+    if np.sum(np.array(result) < 0.01) >= 3:
         print("Your bin sequence is Non random")
         return
-    X_test = pd.DataFrame(
-        [result], columns=list(test_results.keys()) 
-    )
+    X_test = pd.DataFrame([result], columns=list(test_results.keys()))
     dtest = xgb.DMatrix(X_test)
     y_pred = loaded_model.predict(dtest)
     y_prob = loaded_model.predict(dtest)
@@ -159,14 +151,13 @@ def train_data(binary_data, file_name):
     # Print and log the predicted class with the file name
     predicted_class = (y_pred) + 1
 
-
     print(f"{GREEN}Predicted class: {predicted_class}{RESET}")
 
     result_copy.append(predicted_class)
     file_name = remove_bin_extension(file_name)
     result_copy.append(file_name)
     result_string = ",".join(map(str, result_copy))
-    
+
     # append the newly added data
     append_to_csv("final.csv", result_string)  # Use forward slash here
 
@@ -178,38 +169,51 @@ def train_data(binary_data, file_name):
 def retrain_model(new_data):
     """
     Train the XGBoost model with the new provided data.
-    
+
     Args:
     - new_data (list): A list containing features and class for training.
                        The last element in the list is the class label.
-    
+
     Returns:
     - None
     """
-    
+
     # Load the existing model to get the feature importance
     loaded_model = xgb.Booster()
     loaded_model.load_model("xgboost_model.model")  # Use forward slash here
 
     test_results = new_data[:16]  # First 16 elements are the test results
-    class_label = int(new_data[16]) - 1  # The 17th value is the class label (adjust to be 0-indexed)
+    class_label = (
+        int(new_data[16]) - 1
+    )  # The 17th value is the class label (adjust to be 0-indexed)
 
-    print(f"{CYAN}Training on new data with features: {test_results} and class: {class_label + 1}{RESET}")
+    print(
+        f"{CYAN}Training on new data with features: {test_results} and class: {class_label + 1}{RESET}"
+    )
 
     # Get feature importance from the model (for calculating the weighted sum)
     importance_dict = loaded_model.get_score(importance_type="gain")
     test_names = [
-        "Frequency (Monobit) Test", "Block Frequency Test", "Run Test", "Longest Run of Ones in a Block Test",
-        "Binary Matrix Rank Test", "Discrete Fourier Transform (Spectral) Test",
-        "Non-Overlapping Template Matching Test", "Overlapping Template Matching Test",
-        "Universal Statistical Test", "Linear Complexity Test", "Serial Test", 
-        "Approximate Entropy Test", "Cumulative Sums (Forward) Test", 
-        "Cumulative Sums (Backward) Test", "Random Excursions Test", "Random Excursions Variant Test"
+        "Frequency (Monobit) Test",
+        "Block Frequency Test",
+        "Run Test",
+        "Longest Run of Ones in a Block Test",
+        "Binary Matrix Rank Test",
+        "Discrete Fourier Transform (Spectral) Test",
+        "Non-Overlapping Template Matching Test",
+        "Overlapping Template Matching Test",
+        "Universal Statistical Test",
+        "Linear Complexity Test",
+        "Serial Test",
+        "Approximate Entropy Test",
+        "Cumulative Sums (Forward) Test",
+        "Cumulative Sums (Backward) Test",
+        "Random Excursions Test",
+        "Random Excursions Variant Test",
     ]
 
-
     X_train = pd.DataFrame([test_results], columns=test_names)
-    
+
     y_train = pd.Series([class_label])  # Target class
 
     # Convert to DMatrix for XGBoost training
@@ -271,7 +275,9 @@ def handle_client(client_socket, client_address):
             binary_data_content = message.get("data", "")
             file_name = message.get("file_name", "unknown_file")
 
-            print(f"Received mode: {mode}, data size: {len(binary_data_content)}, file: {file_name}")
+            print(
+                f"Received mode: {mode}, data size: {len(binary_data_content)}, file: {file_name}"
+            )
 
             if mode == "test":
                 predict_class(binary_data_content, file_name)
