@@ -9,13 +9,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 # Placeholder for  test functions and XGBoost model
-from features.FrequencyTest import FrequencyTest
-from features.RunTest import RunTest
+from features.FrequencyTest import Frequency
+from features.RunTest import Run
 from features.Matrix import Matrix
-from features.Spectral import SpectralTest
+from features.Spectral import Spectral
 from features.TemplateMatching import TemplateMatching
 from features.Universal import Universal
-from features.Complexity import ComplexityTest
+from features.Complexity import Complexity
 from features.Serial import Serial
 from features.ApproximateEntropy import ApproximateEntropy
 from features.CumulativeSum import CumulativeSums
@@ -42,36 +42,36 @@ def remove_bin_extension(file_name):
 # features
 def features_extraction(binary_data):
     features = {
-        "Frequency (Monobit) Test": FrequencyTest.monobit_test(binary_data),
-        "Block Frequency Test": FrequencyTest.block_frequency(binary_data),
-        "Run Test": RunTest.run_test(binary_data),
-        "Longest Run of Ones in a Block Test": RunTest.longest_one_block_test(
+        "Frequency (Monobit) Test": Frequency.monobit(binary_data),
+        "Block Frequency Test": Frequency.block_frequency(binary_data),
+        "Run Test": Run.run(binary_data),
+        "Longest Run of Ones in a Block Test": Run.longest_one_block(
             binary_data
         ),
-        "Binary Matrix Rank Test": Matrix.binary_matrix_rank_text(binary_data),
-        "Discrete Fourier Transform (Spectral) Test": SpectralTest.spectral_test(
+        "Binary Matrix Rank Test": Matrix.binary_matrix_rank(binary_data),
+        "Discrete Fourier Transform (Spectral) Test": Spectral.spectral(
             binary_data
         ),
-        "Non-Overlapping Template Matching Test": TemplateMatching.non_overlapping_test(
+        "Non-Overlapping Template Matching Test": TemplateMatching.non_overlapping(
             binary_data
         ),
         "Overlapping Template Matching Test": TemplateMatching.overlapping_patterns(
             binary_data
         ),
-        "Universal Statistical Test": Universal.statistical_test(binary_data),
-        "Linear Complexity Test": ComplexityTest.linear_complexity_test(binary_data),
-        "Serial Test": Serial.serial_test(binary_data),
-        "Approximate Entropy Test": ApproximateEntropy.approximate_entropy_test(
+        "Universal Statistical Test": Universal.statistical(binary_data),
+        "Linear Complexity Test": Complexity.linear_complexity(binary_data),
+        "Serial Test": Serial.serial(binary_data),
+        "Approximate Entropy Test": ApproximateEntropy.approximate_entropy(
             binary_data
         ),
-        "Cumulative Sums (Forward) Test": CumulativeSums.cumulative_sums_test(
+        "Cumulative Sums (Forward) Test": CumulativeSums.cumulative_sums(
             binary_data, 0
         ),
-        "Cumulative Sums (Backward) Test": CumulativeSums.cumulative_sums_test(
+        "Cumulative Sums (Backward) Test": CumulativeSums.cumulative_sums(
             binary_data, 1
         ),
-        "Random Excursions Test": RandomExcursions.random_excursions_test(binary_data),
-        "Random Excursions Variant Test": RandomExcursions.variant_test(binary_data),
+        "Random Excursions Test": RandomExcursions.random_excursions(binary_data),
+        "Random Excursions Variant Test": RandomExcursions.variant(binary_data),
     }
     return features
 

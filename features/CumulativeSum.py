@@ -10,7 +10,7 @@ from scipy.stats import norm as norm
 class CumulativeSums:
 
     @staticmethod
-    def cumulative_sums_test(binary_data:str, mode=0, verbose=False):
+    def cumulative_sums(binary_data:str, mode=0, verbose=False):
         """
         from the NIST documentation http://csrc.nist.gov/publications/nistpubs/800-22-rev1a/SP800-22rev1a.pdf
 

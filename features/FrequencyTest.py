@@ -4,10 +4,10 @@ from math import sqrt as sqrt
 from scipy.special import erfc as erfc
 from scipy.special import gammaincc as gammaincc
 
-class FrequencyTest:
+class Frequency:
 
     @staticmethod
-    def monobit_test(binary_data:str, verbose=False):
+    def monobit(binary_data:str, verbose=False):
         """
         The focus of the test is the proportion of zeroes and ones for the entire sequence.
         The purpose of this test is to determine whether the number of ones and zeros in a sequence are approximately
@@ -82,7 +82,7 @@ class FrequencyTest:
 
         if number_of_blocks == 1:
             # For block size M=1, this test degenerates to test 1, the Frequency (Monobit) test.
-            return FrequencyTest.monobit_test(binary_data[0:block_size])
+            return Frequency.monobit(binary_data[0:block_size])
 
         # Initialized variables
         block_start = 0

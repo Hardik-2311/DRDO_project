@@ -1,4 +1,4 @@
-from tests.BinaryMatrix import BinaryMatrix as bm
+from features.BinaryMatrix import BinaryMatrix as bm
 from math import exp as exp
 from math import floor as floor
 from numpy import zeros as zeros
@@ -6,7 +6,7 @@ from numpy import zeros as zeros
 class Matrix:
 
     @staticmethod
-    def binary_matrix_rank_text(binary_data:str, verbose=False, rows_in_matrix = 32, columns_in_matrix = 32):
+    def binary_matrix_rank(binary_data:str, verbose=False, rows_in_matrix = 32, columns_in_matrix = 32):
         """
         Note that this description is taken from the NIST documentation [1]
         [1] http://csrc.nist.gov/publications/nistpubs/800-22-rev1a/SP800-22rev1a.pdf

@@ -16,7 +16,7 @@ from scipy.special import gammaincc as gammaincc
 class RandomExcursions:
 
     @staticmethod
-    def random_excursions_test(binary_data:str, verbose=False, state=1):
+    def random_excursions(binary_data:str, verbose=False, state=1):
         """
         from the NIST documentation http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf
 
@@ -96,7 +96,7 @@ class RandomExcursions:
         return result
 
     @staticmethod
-    def variant_test(binary_data:str, verbose=False):
+    def variant(binary_data:str, verbose=False):
         """
         from the NIST documentation http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-22r1a.pdf
 

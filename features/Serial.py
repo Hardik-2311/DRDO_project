@@ -4,7 +4,7 @@ from scipy.special import gammaincc as gammaincc
 class Serial:
 
     @staticmethod
-    def serial_test(binary_data: str, verbose=False, pattern_length=16):
+    def serial(binary_data: str, verbose=False, pattern_length=16):
         """Performs the Serial test for randomness.
 
         :param binary_data: The binary sequence to test.

@@ -7,7 +7,7 @@ from scipy.special import erfc as erfc
 class Universal:
 
     @staticmethod
-    def statistical_test(binary_data:str, verbose=False):
+    def statistical(binary_data:str, verbose=False):
         """
         Note that this description is taken from the NIST documentation [1]
         [1] http://csrc.nist.gov/publications/nistpubs/800-22-rev1a/SP800-22rev1a.pdf

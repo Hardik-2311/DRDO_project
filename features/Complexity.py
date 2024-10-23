@@ -1,10 +1,10 @@
 import numpy as np
 from scipy.special import gammaincc
 
-class ComplexityTest:
+class Complexity:
 
     @staticmethod
-    def linear_complexity_test(binary_data: str, verbose=False, block_size=500):
+    def linear_complexity(binary_data: str, verbose=False, block_size=500):
         """
         Optimized version of the linear complexity test.
         """
@@ -23,7 +23,7 @@ class ComplexityTest:
         if number_of_block > 1:
             blocks = [binary_data[i * block_size:(i + 1) * block_size] for i in range(number_of_block)]
 
-            complexities = [ComplexityTest.berlekamp_massey_algorithm(block) for block in blocks]
+            complexities = [Complexity.berlekamp_massey_algorithm(block) for block in blocks]
 
             t = np.array([-1.0 * (((-1) ** block_size) * (chunk - mean) + 2.0 / 9) for chunk in complexities])
 

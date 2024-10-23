@@ -5,7 +5,7 @@ from scipy.special import gammaincc as gammaincc
 class ApproximateEntropy:
 
     @staticmethod
-    def approximate_entropy_test(binary_data:str, verbose=False, pattern_length=10):
+    def approximate_entropy(binary_data:str, verbose=False, pattern_length=10):
         """
         from the NIST documentation http://csrc.nist.gov/publications/nistpubs/800-22-rev1a/SP800-22rev1a.pdf
 

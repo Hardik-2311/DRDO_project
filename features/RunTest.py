@@ -5,10 +5,10 @@ from scipy.special import erfc as erfc
 from scipy.special import gammaincc as gammaincc
 from numpy import zeros
 
-class RunTest:
+class Run:
 
     @staticmethod
-    def run_test(binary_data:str, verbose=False):
+    def run(binary_data:str, verbose=False):
         """
         The focus of this test is the total number of runs in the sequence,
         where a run is an uninterrupted sequence of identical bits.
@@ -64,7 +64,7 @@ class RunTest:
         return (p_value, (p_value > 0.01))
 
     @staticmethod
-    def longest_one_block_test(binary_data:str, verbose=False):
+    def longest_one_block(binary_data:str, verbose=False):
         """
         The focus of the test is the longest run of ones within M-bit blocks. The purpose of this test is to determine
         whether the length of the longest run of ones within the tested sequence is consistent with the length of the
