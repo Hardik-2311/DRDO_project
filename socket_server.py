@@ -5,8 +5,7 @@ import numpy as np
 import pandas as pd
 import time
 from concurrent.futures import ThreadPoolExecutor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score
+from datetime import datetime
 
 # Placeholder for  test functions and XGBoost model
 from features.feature_2 import Frequency
@@ -90,47 +89,35 @@ def compute_final_p_value(result):
     return result if isinstance(result, (float, np.float64)) else 0.0
 
 
-# Function to process binary data and predict the class
 def predict_class(binary_data, file_name):
     start_time = time.time()  # Start timing
-
-    # Load the pre-trained XGBoost model
+    real_start_time = datetime.now().strftime(
+        "%H:%M"
+    )
+    print(f"Process started at: {real_start_time}")
     loaded_model = xgb.Booster()
-    loaded_model.load_model("xgboost_model.model")  # Use forward slash here
-
-    print(f"{GREEN}XGBoost model loaded for file: {file_name}.{RESET}")
-
-    # Perform  features
-    print(f"{CYAN}Running  features for file: {file_name}...{RESET}")
-    test_start_time = time.time()  # Start timing  features
+    loaded_model.load_model("xgboost_model.model")
+    test_start_time = time.time()
     test_results = features_extraction(binary_data)
     result = [compute_final_p_value(value) for key, value in test_results.items()]
     print(
-        f"{MAGENTA} features completed in {time.time() - test_start_time:.2f} seconds for file: {file_name}.{RESET}"
+        f"{MAGENTA}Features completed in {time.time() - test_start_time:.2f} seconds for file: {file_name}.{RESET}"
     )
-
     print(np.array(result))
-
-    if np.sum(np.array(result) < 0.01) >= 3:
-        print("Your bin sequence is Non random")
-        return
     X_test = pd.DataFrame([result], columns=list(test_results.keys()))
     dtest = xgb.DMatrix(X_test)
     y_pred = loaded_model.predict(dtest)
     y_prob = loaded_model.predict(dtest)
     print(y_pred)
-
-    # Print and log the predicted class with the file name
     predicted_class = np.argmax(y_prob[0]) + 1
-
-    # Confidence of the prediction (highest probability value)
     confidence_score = y_prob[0][np.argmax(y_prob[0])]
-
     print(f"{BLUE}Predicted class for file {file_name}: {predicted_class}{RESET}")
     print(
         f"{MAGENTA}Class prediction completed in {time.time() - start_time:.2f} seconds for file: {file_name}.{RESET}"
     )
     print(f"{CYAN}Confidence score: {confidence_score * 100:.2f}%{RESET}")
+    real_end_time = datetime.now().strftime("%H:%M")
+    print(f"Process ended at: {real_end_time}")
 
 
 # how to train the model using new .bin file
@@ -139,33 +126,21 @@ def train_data(binary_data, file_name):
     result = [compute_final_p_value(value) for key, value in train_result.items()]
     result_copy = result.copy()
     loaded_model = xgb.Booster()
-    loaded_model.load_model("xgboost_model.model")  # Use forward slash here
-
-    # Predict the class using XGBoost
+    loaded_model.load_model("xgboost_model.model")
     X_test = pd.DataFrame([result], columns=list(train_result.keys()))
     dtest = xgb.DMatrix(X_test)
     y_pred = loaded_model.predict(dtest)
-
     y_pred = np.argmax(y_pred[0])
-
-    # Print and log the predicted class with the file name
     predicted_class = (y_pred) + 1
-
     print(f"{GREEN}Predicted class: {predicted_class}{RESET}")
-
     result_copy.append(predicted_class)
     file_name = remove_bin_extension(file_name)
     result_copy.append(file_name)
     result_string = ",".join(map(str, result_copy))
-
-    # append the newly added data
-    append_to_csv("final.csv", result_string)  # Use forward slash here
-
-    # retrain your model
+    append_to_csv("final.csv", result_string)
     retrain_model(result_copy)
+    
 
-
-# retrain the model with updated csv
 def retrain_model(new_data):
     """
     Train the XGBoost model with the new provided data.
