@@ -6,7 +6,7 @@ from scipy.special import gammaincc as gammaincc
 from scipy.special import hyp1f1 as hyp1f1
 
 
-class TemplateMatching:
+class feature_8:
 
     @staticmethod
     def non_overlapping(binary_data:str, verbose=False, template_pattern='000000001', block=8):
@@ -100,7 +100,7 @@ class TemplateMatching:
         # η = λ/2
         eta = lambda_val / 2.0
 
-        pi = [TemplateMatching.get_prob(i, eta) for i in range(5)]
+        pi = [feature_8.get_prob(i, eta) for i in range(5)]
         diff = float(array(pi).sum())
         pi.append(1.0 - diff)
 

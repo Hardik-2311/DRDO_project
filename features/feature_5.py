@@ -5,7 +5,7 @@ from scipy.special import erfc as erfc
 from scipy.special import gammaincc as gammaincc
 from numpy import zeros
 
-class Run:
+class feature_5:
 
     @staticmethod
     def run(binary_data:str, verbose=False):
@@ -51,7 +51,7 @@ class Run:
             p_value = erfc(abs(vObs - (2 * (length_of_binary_data) * pi * (1 - pi))) / (2 * sqrt(2 * length_of_binary_data) * pi * (1 - pi)))
 
         if verbose:
-            print('Run Test DEBUG BEGIN:')
+            print('feature_5 Test DEBUG BEGIN:')
             print("\tLength of input:\t\t\t\t", length_of_binary_data)
             print("\tTau (2/sqrt(length of input)):\t", tau)
             print('\t# of \'1\':\t\t\t\t\t\t', one_count)
@@ -125,7 +125,7 @@ class Run:
 
             max(max_run_count, run_count)
 
-            #print('Block Data: ', block_data, '. Run Count: ', max_run_count)
+            #print('Block Data: ', block_data, '. feature_5 Count: ', max_run_count)
 
             if max_run_count < v_values[0]:
                 frequencies[0] += 1
@@ -147,7 +147,7 @@ class Run:
         p_value = gammaincc(float(k / 2), float(xObs / 2))
 
         if verbose:
-            print('Run Test (Longest Run of Ones in a Block) DEBUG BEGIN:')
+            print('feature_5 Test (Longest feature_5 of Ones in a Block) DEBUG BEGIN:')
             print("\tLength of input:\t\t\t\t", length_of_binary_data)
             print("\tSize of each Block:\t\t\t\t", m)
             print('\tNumber of Block:\t\t\t\t', number_of_blocks)

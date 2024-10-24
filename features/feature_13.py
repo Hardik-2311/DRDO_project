@@ -1,6 +1,6 @@
 from copy import copy as copy
 
-class BinaryMatrix:
+class feature_13:
 
     def __init__(self, matrix, rows, cols):
         """
@@ -8,7 +8,8 @@ class BinaryMatrix:
         :param matrix: the matrix we want to compute the rank for
         :param rows: the number of rows
         :param cols: the number of columns
-        :return: a BinaryMatrix object
+        :return: a feature_13
+     object
         """
         self.M = rows
         self.Q = cols

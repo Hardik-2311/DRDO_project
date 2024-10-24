@@ -13,7 +13,7 @@ from numpy import zeros as zeros
 from scipy.special import erfc as erfc
 from scipy.special import gammaincc as gammaincc
 
-class RandomExcursions:
+class feature_4:
 
     @staticmethod
     def random_excursions(binary_data:str, verbose=False, state=1):
@@ -71,7 +71,7 @@ class RandomExcursions:
             su.append([(sct == cycle).sum() for sct in state_count])
         su = transpose(su)
 
-        pi = ([([RandomExcursions.get_pi_value(uu, state) for uu in range(6)]) for state in x_values])
+        pi = ([([feature_4.get_pi_value(uu, state) for uu in range(6)]) for state in x_values])
         inner_term = num_cycles * array(pi)
         xObs = sum(1.0 * (array(su) - inner_term) ** 2 / inner_term, axis=1)
         p_values = ([gammaincc(2.5, cs / 2.0) for cs in xObs])
@@ -120,13 +120,13 @@ class RandomExcursions:
                 index.append(count)
                 li_data.append([count, len(where(cumulative_sum == count)[0])])
 
-        j = RandomExcursions.get_frequency(li_data, 0) + 1
+        j = feature_4.get_frequency(li_data, 0) + 1
 
         p_values = []
         for count in (sorted(set(index))):
             if not count == 0:
                 den = sqrt(2 * j * (4 * abs(count) - 2))
-                p_values.append(erfc(abs(RandomExcursions.get_frequency(li_data, count) - j) / den))
+                p_values.append(erfc(abs(feature_4.get_frequency(li_data, count) - j) / den))
 
         count = 0
         # Remove 0 from li_data so the number of element will be equal to p_values

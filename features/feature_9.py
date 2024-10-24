@@ -4,7 +4,7 @@ from math import sqrt as sqrt
 from numpy import zeros as zeros
 from scipy.special import erfc as erfc
 
-class Universal:
+class feature_9:
 
     @staticmethod
     def statistical(binary_data:str, verbose=False):
@@ -98,7 +98,7 @@ class Universal:
             p_value = erfc(stat)
 
             if verbose:
-                print('Maurer\'s Universal Statistical Test DEBUG BEGIN:')
+                print('Maurer\'s feature_9 Statistical Test DEBUG BEGIN:')
                 print("\tLength of input:\t\t", length_of_binary_data)
                 print('\tLength of each block:\t', pattern_size)
                 print('\tNumber of Blocks:\t\t', init_bits)

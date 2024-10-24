@@ -4,7 +4,7 @@ from math import sqrt as sqrt
 from scipy.special import erfc as erfc
 from scipy.special import gammaincc as gammaincc
 
-class Frequency:
+class feature_2:
 
     @staticmethod
     def monobit(binary_data:str, verbose=False):
@@ -20,7 +20,7 @@ class Frequency:
 
         :param      binary_data         The seuqnce of bit being tested
         :param      verbose             True to display the debug messgae, False to turn off debug message
-        :return:    (p_value, bool)     A tuple which contain the p_value and result of frequency_test(True or False)
+        :return:    (p_value, bool)     A tuple which contain the p_value and result of feature_2_test(True or False)
 
         """
 
@@ -44,7 +44,7 @@ class Frequency:
         p_value = erfc(fabs(sObs) / sqrt(2))
 
         if verbose:
-            print('Frequency Test (Monobit Test) DEBUG BEGIN:')
+            print('feature_2 Test (Monobit Test) DEBUG BEGIN:')
             print("\tLength of input:\t", length_of_bit_string)
             print('\t# of \'0\':\t\t\t', binary_data.count('0'))
             print('\t# of \'1\':\t\t\t', binary_data.count('1'))
@@ -58,17 +58,17 @@ class Frequency:
         return (p_value, (p_value >= 0.01))
 
     @staticmethod
-    def block_frequency(binary_data:str, block_size=128, verbose=False):
+    def block_feature_2(binary_data:str, block_size=128, verbose=False):
         """
         The focus of the test is the proportion of ones within M-bit blocks.
-        The purpose of this test is to determine whether the frequency of ones in an M-bit block is approximately M/2,
+        The purpose of this test is to determine whether the feature_2 of ones in an M-bit block is approximately M/2,
         as would be expected under an assumption of randomness.
-        For block size M=1, this test degenerates to test 1, the Frequency (Monobit) test.
+        For block size M=1, this test degenerates to test 1, the feature_2 (Monobit) test.
 
         :param      binary_data:        The length of each block
         :param      block_size:         The seuqnce of bit being tested
         :param      verbose             True to display the debug messgae, False to turn off debug message
-        :return:    (p_value, bool)     A tuple which contain the p_value and result of frequency_test(True or False)
+        :return:    (p_value, bool)     A tuple which contain the p_value and result of feature_2_test(True or False)
         """
 
         length_of_bit_string = len(binary_data)
@@ -81,8 +81,8 @@ class Frequency:
         number_of_blocks = floor(length_of_bit_string / block_size)
 
         if number_of_blocks == 1:
-            # For block size M=1, this test degenerates to test 1, the Frequency (Monobit) test.
-            return Frequency.monobit(binary_data[0:block_size])
+            # For block size M=1, this test degenerates to test 1, the feature_2 (Monobit) test.
+            return feature_2.monobit(binary_data[0:block_size])
 
         # Initialized variables
         block_start = 0
@@ -116,7 +116,7 @@ class Frequency:
         p_value = gammaincc(number_of_blocks / 2, result / 2)
 
         if verbose:
-            print('Frequency Test (Block Frequency Test) DEBUG BEGIN:')
+            print('feature_2 Test (Block feature_2 Test) DEBUG BEGIN:')
             print("\tLength of input:\t", length_of_bit_string)
             print("\tSize of Block:\t\t", block_size)
             print('\tNumber of Blocks:\t', number_of_blocks)

@@ -7,7 +7,7 @@ from numpy import sum as sum
 from numpy import zeros as zeros
 from scipy.stats import norm as norm
 
-class CumulativeSums:
+class feature_10:
 
     @staticmethod
     def cumulative_sums(binary_data:str, mode=0, verbose=False):

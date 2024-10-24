@@ -1,11 +1,11 @@
 from numpy import zeros
 import numpy as np
 from scipy.special import gammaincc as gammaincc
-class Serial:
+class feature_6:
 
     @staticmethod
-    def serial(binary_data: str, verbose=False, pattern_length=16):
-        """Performs the Serial test for randomness.
+    def feature_6(binary_data: str, verbose=False, pattern_length=16):
+        """Performs the feature_6 test for randomness.
 
         :param binary_data: The binary sequence to test.
         :param verbose: Whether to print detailed debug information.
@@ -47,7 +47,7 @@ class Serial:
         passed = p_value >= 0.01
 
         if verbose:
-            print('Serial Test DEBUG BEGIN:')
+            print('feature_6 Test DEBUG BEGIN:')
             print("\tLength of input:\t", length_of_binary_data)
             print('\tPsi_m:', psi_m)
             print('\tPsi_m_minus_1:', psi_m_minus_1)

@@ -1,12 +1,12 @@
 import numpy as np
 from scipy.special import gammaincc
 
-class Complexity:
+class feature_12:
 
     @staticmethod
-    def linear_complexity(binary_data: str, verbose=False, block_size=500):
+    def linear_feature_12(binary_data: str, verbose=False, block_size=500):
         """
-        Optimized version of the linear complexity test.
+        Optimized version of the linear feature_12 test.
         """
 
         length_of_binary_data = len(binary_data)
@@ -23,7 +23,7 @@ class Complexity:
         if number_of_block > 1:
             blocks = [binary_data[i * block_size:(i + 1) * block_size] for i in range(number_of_block)]
 
-            complexities = [Complexity.berlekamp_massey_algorithm(block) for block in blocks]
+            complexities = [feature_12.berlekamp_massey_algorithm(block) for block in blocks]
 
             t = np.array([-1.0 * (((-1) ** block_size) * (chunk - mean) + 2.0 / 9) for chunk in complexities])
 
@@ -38,7 +38,7 @@ class Complexity:
             p_value = gammaincc(degree_of_freedom / 2.0, xObs / 2.0)
 
             if verbose:
-                print('Linear Complexity Test DEBUG BEGIN:')
+                print('Linear feature_12 Test DEBUG BEGIN:')
                 print(f'\tLength of input:\t{length_of_binary_data}')
                 print(f'\tLength in bits of a block:\t{block_size}')
                 print(f'\tDegree of Freedom:\t\t{degree_of_freedom}')

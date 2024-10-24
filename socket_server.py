@@ -8,17 +8,17 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
 # Placeholder for  test functions and XGBoost model
-from features.feature_2 import Frequency
-from features.feature_5 import Run
-from features.feature_3 import Matrix
-from features.feature_7 import Spectral
-from features.feature_8 import TemplateMatching
-from features.feature_9 import Universal
-from features.feature_12 import Complexity
-from features.feature_6 import Serial
-from features.feature_1 import ApproximateEntropy
-from features.feature_10 import CumulativeSums
-from features.feature_4 import RandomExcursions
+from features.feature_2 import feature_2
+from features.feature_5 import feature_5
+from features.feature_3 import feature_3
+from features.feature_7 import feature_7
+from features.feature_8 import feature_8
+from features.feature_9 import feature_9
+from features.feature_12 import feature_12
+from features.feature_6 import feature_6
+from features.feature_1 import feature_1
+from features.feature_10 import feature_10
+from features.feature_4 import feature_4
 
 
 # Color codes for terminal print
@@ -41,33 +41,24 @@ def remove_bin_extension(file_name):
 # features
 def features_extraction(binary_data):
     features = {
-        "Frequency (Monobit) Test": Frequency.monobit(binary_data),
-        "Block Frequency Test": Frequency.block_frequency(binary_data),
-        "Run Test": Run.run(binary_data),
-        "Longest Run of Ones in a Block Test": Run.longest_one_block(binary_data),
-        "Binary Matrix Rank Test": Matrix.binary_matrix_rank(binary_data),
-        "Discrete Fourier Transform (Spectral) Test": Spectral.spectral(binary_data),
-        "Non-Overlapping Template Matching Test": TemplateMatching.non_overlapping(
-            binary_data
-        ),
-        "Overlapping Template Matching Test": TemplateMatching.overlapping_patterns(
-            binary_data
-        ),
-        "Universal Statistical Test": Universal.statistical(binary_data),
-        "Linear Complexity Test": Complexity.linear_complexity(binary_data),
-        "Serial Test": Serial.serial(binary_data),
-        "Approximate Entropy Test": ApproximateEntropy.approximate_entropy(binary_data),
-        "Cumulative Sums (Forward) Test": CumulativeSums.cumulative_sums(
-            binary_data, 0
-        ),
-        "Cumulative Sums (Backward) Test": CumulativeSums.cumulative_sums(
-            binary_data, 1
-        ),
-        "Random Excursions Test": RandomExcursions.random_excursions(binary_data),
-        "Random Excursions Variant Test": RandomExcursions.variant(binary_data),
+        "feature_1": feature_2.monobit(binary_data),
+        "feature_2": feature_2.block_feature_2(binary_data),
+        "feature_3": feature_5.run(binary_data),
+        "feature_4": feature_5.longest_one_block(binary_data),
+        "feature_5": feature_3.binary_matrix_rank(binary_data),
+        "feature_6": feature_7.feature_7(binary_data),
+        "feature_7": feature_8.non_overlapping(binary_data),
+        "feature_8": feature_8.overlapping_patterns(binary_data),
+        "feature_9": feature_9.statistical(binary_data),
+        "feature_10": feature_12.linear_feature_12(binary_data),
+        "feature_11": feature_6.feature_6(binary_data),
+        "feature_12": feature_1.approximate_entropy(binary_data),
+        "feature_13": feature_10.cumulative_sums(binary_data, 0),
+        "feature_14": feature_10.cumulative_sums(binary_data, 1),
+        "feature_15": feature_4.random_excursions(binary_data),
+        "feature_16": feature_4.variant(binary_data),
     }
     return features
-
 
 # for p values
 def compute_final_p_value(result):
@@ -169,23 +160,23 @@ def retrain_model(new_data):
     # Get feature importance from the model (for calculating the weighted sum)
     importance_dict = loaded_model.get_score(importance_type="gain")
     test_names = [
-        "Frequency (Monobit) Test",
-        "Block Frequency Test",
-        "Run Test",
-        "Longest Run of Ones in a Block Test",
-        "Binary Matrix Rank Test",
-        "Discrete Fourier Transform (Spectral) Test",
-        "Non-Overlapping Template Matching Test",
-        "Overlapping Template Matching Test",
-        "Universal Statistical Test",
-        "Linear Complexity Test",
-        "Serial Test",
-        "Approximate Entropy Test",
-        "Cumulative Sums (Forward) Test",
-        "Cumulative Sums (Backward) Test",
-        "Random Excursions Test",
-        "Random Excursions Variant Test",
-    ]
+    "feature_1",
+    "feature_2",
+    "feature_3",
+    "feature_4",
+    "feature_5",
+    "feature_6",
+    "feature_7",
+    "feature_8",
+    "feature_9",
+    "feature_10",
+    "feature_11",
+    "feature_12",
+    "feature_13",
+    "feature_14",
+    "feature_15",
+    "feature_16"
+]
 
     X_train = pd.DataFrame([test_results], columns=test_names)
 

@@ -1,9 +1,9 @@
-from features.feature_13 import BinaryMatrix as bm
+from features.feature_13 import feature_13 as bm
 from math import exp as exp
 from math import floor as floor
 from numpy import zeros as zeros
 
-class Matrix:
+class feature_3:
 
     @staticmethod
     def binary_matrix_rank(binary_data:str, verbose=False, rows_in_matrix = 32, columns_in_matrix = 32):

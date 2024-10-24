@@ -6,10 +6,10 @@ from numpy import where as where
 from scipy import fftpack as sff
 from scipy.special import erfc as erfc
 
-class Spectral:
+class feature_7:
 
     @staticmethod
-    def spectral(binary_data:str, verbose=False):
+    def feature_7(binary_data:str, verbose=False):
         """
         Note that this description is taken from the NIST documentation [1]
         [1] http://csrc.nist.gov/publications/nistpubs/800-22-rev1a/SP800-22rev1a.pdf
@@ -36,12 +36,12 @@ class Spectral:
         # Step 2 - Apply a Discrete Fourier transform (DFT) on X to produce: S = DFT(X).
         # A sequence of complex variables is produced which represents periodic
         # components of the sequence of bits at different frequencies
-        spectral = sff.fft(plus_one_minus_one)
+        feature_7 = sff.fft(plus_one_minus_one)
 
         # Step 3 - Calculate M = modulus(S´) ≡ |S'|, where S´ is the substring consisting of the first n/2
         # elements in S, and the modulus function produces a sequence of peak heights.
         slice = floor(length_of_binary_data / 2)
-        modulus = abs(spectral[0:slice])
+        modulus = abs(feature_7[0:slice])
 
         # Step 4 - Compute T = sqrt(log(1 / 0.05) * length_of_string) the 95 % peak height threshold value.
         # Under an assumption of randomness, 95 % of the values obtained from the test should not exceed T.
@@ -61,7 +61,7 @@ class Spectral:
         p_value = erfc(fabs(d) / sqrt(2))
 
         if verbose:
-            print('Discrete Fourier Transform (Spectral) Test DEBUG BEGIN:')
+            print('Discrete Fourier Transform (feature_7) Test DEBUG BEGIN:')
             print('\tLength of Binary Data:\t', length_of_binary_data)
             print('\tValue of T:\t\t\t\t', tau)
             print('\tValue of n1:\t\t\t', n1)
