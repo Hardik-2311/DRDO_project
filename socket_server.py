@@ -80,6 +80,66 @@ def compute_final_p_value(result):
     return result if isinstance(result, (float, np.float64)) else 0.0
 
 
+# Define the ranges for each class as specified
+ranges = {
+    1: (0.95, 1.0),
+    2: (0.90, 0.95),
+    3: (0.85, 0.90),
+    4: (0.80, 0.85),
+    5: (0.75, 0.80),
+    6: (0.70, 0.75),
+    7: (0.00, 0.70)
+}
+
+def classify_data_based_on_ranges_list(results, minimum_passing=6):
+    """
+    Classify data based on the number of passing tests for each class range.
+
+    Args:
+    - results (list): A list of computed p-values, each corresponding to a feature.
+    - minimum_passing (int): Minimum number of passing tests required to consider a class.
+
+    Returns:
+    - int: Predicted class based on passing test counts.
+    """
+    # Initialize a counter for each class based on the ranges
+    class_passing_counts = {i: 0 for i in ranges.keys()}
+    
+    # Tally the count of features that fall into each class range
+    for p_value in results:
+        for class_label, (low, high) in ranges.items():
+            if low <= p_value <= high:
+                class_passing_counts[class_label] += 1
+                break  # Stop once the range is matched
+
+    # Print count for each class
+    print("Class counts based on p-value ranges:")
+    for class_label, count in class_passing_counts.items():
+        print(f"Class {class_label}: {count} features")
+
+    # Calculate total counts for classes 1-6 and for class 7
+    classes_1_to_6_count = sum(class_passing_counts[i] for i in range(1, 7))
+    class_7_count = class_passing_counts[7]
+    
+    print("Total counts:")
+    print(f"Classes 1 to 6: {classes_1_to_6_count}")
+    print(f"Class 7: {class_7_count}")
+
+    # Determine classification based on the specified rules
+    if classes_1_to_6_count >= minimum_passing and classes_1_to_6_count > class_7_count:
+        # Identify the class with the most passing tests within classes 1-6
+        predicted_class = max(range(1, 7), key=lambda x: class_passing_counts[x])
+    elif class_7_count > classes_1_to_6_count and class_7_count >= minimum_passing:
+        predicted_class = 7
+    elif classes_1_to_6_count == class_7_count and classes_1_to_6_count >= minimum_passing:
+        # Select the lowest class within classes 1-6 in case of a tie
+        predicted_class = max(range(1, 7), key=lambda x: class_passing_counts[x])
+    else:
+        predicted_class = None  # If no class meets the minimum passing requirement
+
+    return predicted_class
+
+
 def predict_class(binary_data, file_name):
     start_time = time.time()  # Start timing
     real_start_time = datetime.now().strftime(
@@ -95,21 +155,45 @@ def predict_class(binary_data, file_name):
         f"{MAGENTA}Features completed in {time.time() - test_start_time:.2f} seconds for file: {file_name}.{RESET}"
     )
     print(np.array(result))
+    predicted_class_1 = classify_data_based_on_ranges_list(result)
     X_test = pd.DataFrame([result], columns=list(test_results.keys()))
     dtest = xgb.DMatrix(X_test)
     y_pred = loaded_model.predict(dtest)
     y_prob = loaded_model.predict(dtest)
     print(y_pred)
-    predicted_class = np.argmax(y_prob[0]) + 1
+    print(predicted_class_1)
+    predicted_class =np.argmax(y_prob[0])+1
     confidence_score = y_prob[0][np.argmax(y_prob[0])]
     print(f"{BLUE}Predicted class for file {file_name}: {predicted_class}{RESET}")
     print(
         f"{MAGENTA}Class prediction completed in {time.time() - start_time:.2f} seconds for file: {file_name}.{RESET}"
     )
     print(f"{CYAN}Confidence score: {confidence_score * 100:.2f}%{RESET}")
-    real_end_time = datetime.now().strftime("%H:%M")
-    print(f"Process ended at: {real_end_time}")
+    
+    # Ask user for confirmation or correction
+    # feedback = input("Are you satisfied with the predicted class? (yes/no): ").strip().lower()
+    # if feedback == "no":
+    #     correct_class = int(input("Please provide the correct class (1-7): ").strip())
+        
+    #     # Retrain model with the correct class
+    #     print(f"{YELLOW}Retraining model with the correct class: {correct_class}{RESET}")
+    #     result_copy = result.copy()  # Copy features
+    #     result_copy.append(correct_class)  # Append the user-provided class
+    #     train_data_on_feedback(result_copy, file_name)
+    # else:
+    #     print(f"{GREEN}User is satisfied with the prediction. No retraining needed.{RESET}")
+    
+    # real_end_time = datetime.now().strftime("%H:%M")
+    # print(f"Process ended at: {real_end_time}")
 
+
+def train_data_on_feedback(result_copy,file_name):
+    file_name = remove_bin_extension(file_name)
+    result_copy.append(file_name)
+    result_string = ",".join(map(str, result_copy))
+    append_to_csv("final.csv", result_string)
+    retrain_model(result_copy)
+    
 
 # how to train the model using new .bin file
 def train_data(binary_data, file_name):
@@ -198,7 +282,7 @@ def retrain_model(new_data):
     loaded_model = xgb.train(params, dtrain, num_boost_round=10, xgb_model=loaded_model)
 
     # Save the updated model
-    loaded_model.save_model("models/xgboost_model.model")  # Use forward slash here
+    loaded_model.save_model("xgboost_model.model")  # Use forward slash here
     print(f"{GREEN}Model updated and saved successfully with the new data.{RESET}")
 
 
@@ -285,5 +369,5 @@ def start_server(host, port):
 
 if __name__ == "__main__":
     HOST = "127.0.0.1"
-    PORT = 65432
+    PORT = 6548
     start_server(HOST, PORT)

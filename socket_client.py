@@ -8,7 +8,7 @@ import threading
 def send_data_to_server(mode, bin_file_path):
     # Server IP and port hardcoded (localhost and port 65432)
     server_ip = '127.0.0.1'
-    server_port = 65432
+    server_port = 6548
     
     # Create a socket object
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
