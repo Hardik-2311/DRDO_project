@@ -32,6 +32,17 @@ RED = "\033[31m"
 
 MAX_WORKERS = 20
 
+# Define the ranges for each class as specified
+ranges = {
+    1: (0.95, 1.0),
+    2: (0.90, 0.95),
+    3: (0.85, 0.90),
+    4: (0.80, 0.85),
+    5: (0.75, 0.80),
+    6: (0.70, 0.75),
+    7: (0.00, 0.70)
+}
+
 
 # remove .bin
 def remove_bin_extension(file_name):
@@ -62,34 +73,26 @@ def features_extraction(binary_data):
 
 # for p values
 def compute_final_p_value(result):
-    """Extracts and aggregates p-values from the test result."""
-    if isinstance(result, list):
-        if isinstance(result[0], tuple):
-            p_values = [
-                r[3]
-                for r in result
-                if len(r) > 3 and isinstance(r[3], (float, np.float64))
-            ]
-            return sum(p_values) / len(p_values) if p_values else 0.0
-
-        return sum(result) / len(result) if result else 0.0
-
-    if isinstance(result, tuple):
+    """Extracts and aggregates p-values from the test result according to the NIST suite logic."""
+    if isinstance(result, list) and isinstance(result[0], tuple):
+        # Select the p-value for the state '+1.0'
+        selected_state = '+1' 
+        for r in result:
+            if r[0] == selected_state:
+                #print(f"Debug: Selected State: {selected_state}, p-value: {r[3]}")  # Debug print
+                return r[3]  # Return the p-value for the selected state
+        
+        # If the selected state is not found, return the p-value at index 0
+        #print(f"Debug: Selected State not found, returning p-value from index 0: {result[0][3]}")
+        return result[0][3]
+    
+    elif isinstance(result, (float, np.float64)):
+        return result
+    elif isinstance(result, tuple):
         return result[0] if isinstance(result[0], (float, np.float64)) else 0.0
 
-    return result if isinstance(result, (float, np.float64)) else 0.0
+    return 0.0
 
-
-# Define the ranges for each class as specified
-ranges = {
-    1: (0.95, 1.0),
-    2: (0.90, 0.95),
-    3: (0.85, 0.90),
-    4: (0.80, 0.85),
-    5: (0.75, 0.80),
-    6: (0.70, 0.75),
-    7: (0.00, 0.70)
-}
 
 def classify_data_based_on_ranges_list(results, minimum_passing=6):
     """
@@ -125,75 +128,69 @@ def classify_data_based_on_ranges_list(results, minimum_passing=6):
     print(f"Classes 1 to 6: {classes_1_to_6_count}")
     print(f"Class 7: {class_7_count}")
 
-    # Determine classification based on the specified rules
     if classes_1_to_6_count >= minimum_passing and classes_1_to_6_count > class_7_count:
-        # Identify the class with the most passing tests within classes 1-6
-        predicted_class = max(range(1, 7), key=lambda x: class_passing_counts[x])
+        # Identify the highest numbered class with the maximum count within classes 1-6
+        max_count = max(class_passing_counts[i] for i in range(1, 7))
+        highest_class_with_max_count = max(i for i in range(1, 7) if class_passing_counts[i] == max_count)
+        predicted_class = highest_class_with_max_count
     elif class_7_count > classes_1_to_6_count and class_7_count >= minimum_passing:
         predicted_class = 7
     elif classes_1_to_6_count == class_7_count and classes_1_to_6_count >= minimum_passing:
-        # Select the lowest class within classes 1-6 in case of a tie
-        predicted_class = max(range(1, 7), key=lambda x: class_passing_counts[x])
+        # If tie, choose highest numbered class among classes 1-6
+        max_count = max(class_passing_counts[i] for i in range(1, 7))
+        highest_class_with_max_count = max(i for i in range(1, 7) if class_passing_counts[i] == max_count)
+        predicted_class = highest_class_with_max_count
     else:
-        predicted_class = None  # If no class meets the minimum passing requirement
+        predicted_class = None  # Return None if no class meets the minimum passing criteria
 
     return predicted_class
 
 
 def predict_class(binary_data, file_name):
     start_time = time.time()  # Start timing
-    real_start_time = datetime.now().strftime(
-        "%H:%M"
-    )
+    real_start_time = datetime.now().strftime("%H:%M")
     print(f"Process started at: {real_start_time}")
+    
+    # Load the pre-trained XGBoost model
     loaded_model = xgb.Booster()
     loaded_model.load_model("xgboost_model.model")
+    
+    # Extract features and compute p-values
     test_start_time = time.time()
     test_results = features_extraction(binary_data)
     result = [compute_final_p_value(value) for key, value in test_results.items()]
-    print(
-        f"{MAGENTA}Features completed in {time.time() - test_start_time:.2f} seconds for file: {file_name}.{RESET}"
-    )
+    print(f"{MAGENTA}Features completed in {time.time() - test_start_time:.2f} seconds for file: {file_name}.{RESET}")
     print(np.array(result))
-    predicted_class_1 = classify_data_based_on_ranges_list(result)
+    
+    # Create test data
     X_test = pd.DataFrame([result], columns=list(test_results.keys()))
     dtest = xgb.DMatrix(X_test)
-    y_pred = loaded_model.predict(dtest)
+    
+    # AI Prediction
     y_prob = loaded_model.predict(dtest)
-    print(y_pred)
-    print(predicted_class_1)
-    predicted_class =np.argmax(y_prob[0])+1
+    predicted_class_ai = np.argmax(y_prob[0]) + 1
     confidence_score = y_prob[0][np.argmax(y_prob[0])]
-    print(f"{BLUE}Predicted class for file {file_name}: {predicted_class}{RESET}")
-    print(
-        f"{MAGENTA}Class prediction completed in {time.time() - start_time:.2f} seconds for file: {file_name}.{RESET}"
-    )
+    
+    # Helper function prediction
+    predicted_class_helper = classify_data_based_on_ranges_list(result)
+    
+    print(f"{BLUE}Predicted class (AI): {predicted_class_ai}{RESET}")
     print(f"{CYAN}Confidence score: {confidence_score * 100:.2f}%{RESET}")
+    print(f"{GREEN}Predicted class (Helper Function): {predicted_class_helper}{RESET}")
     
-    # Ask user for confirmation or correction
-    # feedback = input("Are you satisfied with the predicted class? (yes/no): ").strip().lower()
-    # if feedback == "no":
-    #     correct_class = int(input("Please provide the correct class (1-7): ").strip())
+    # Compare predictions
+    if predicted_class_ai != predicted_class_helper:
+        print(f"{YELLOW}Mismatch detected: AI predicted {predicted_class_ai}, Helper predicted {predicted_class_helper}. Retraining...{RESET}")
         
-    #     # Retrain model with the correct class
-    #     print(f"{YELLOW}Retraining model with the correct class: {correct_class}{RESET}")
-    #     result_copy = result.copy()  # Copy features
-    #     result_copy.append(correct_class)  # Append the user-provided class
-    #     train_data_on_feedback(result_copy, file_name)
-    # else:
-    #     print(f"{GREEN}User is satisfied with the prediction. No retraining needed.{RESET}")
+        # Retrain the model with the helper function's class
+        retrain_data = result + [predicted_class_helper]  # Add the helper class label
+        retrain_model(retrain_data)
+        print(f"{GREEN}Model retrained successfully with the helper's prediction.{RESET}")
+    else:
+        print(f"{GREEN}Predictions matched: No retraining needed.{RESET}")
     
-    # real_end_time = datetime.now().strftime("%H:%M")
-    # print(f"Process ended at: {real_end_time}")
-
-
-def train_data_on_feedback(result_copy,file_name):
-    file_name = remove_bin_extension(file_name)
-    result_copy.append(file_name)
-    result_string = ",".join(map(str, result_copy))
-    append_to_csv("final.csv", result_string)
-    retrain_model(result_copy)
-    
+    real_end_time = datetime.now().strftime("%H:%M")
+    print(f"Process ended at: {real_end_time}")
 
 # how to train the model using new .bin file
 def train_data(binary_data, file_name):
