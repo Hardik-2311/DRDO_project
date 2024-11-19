@@ -1,11 +1,13 @@
 import socket
 import json
+import os
 import xgboost as xgb
 import numpy as np
 import pandas as pd
 import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
+import threading
 
 # Placeholder for  test functions and XGBoost model
 from features.feature_2 import feature_2
@@ -48,6 +50,31 @@ ranges = {
 def remove_bin_extension(file_name):
     return file_name.rsplit(".", 1)[0]
 
+
+model_lock = threading.Lock()
+model_cache = {"model": None, "last_loaded_time": None}
+
+# return always new model
+def load_model():
+    """
+    Load the latest XGBoost model. If the model is already loaded and up-to-date, reuse it.
+    """
+    global model_cache
+
+    model_path = "xgboost_model.model"
+    model_load_time = time.ctime(os.path.getmtime(model_path))  # Get model file modification time
+    
+    with model_lock:
+        # Check if the model needs to be reloaded
+        if model_cache["model"] is None or model_cache["last_loaded_time"] != model_load_time:
+            print(f"{CYAN}Loading updated model from disk...{RESET}")
+            model_cache["model"] = xgb.Booster()
+            model_cache["model"].load_model(model_path)
+            model_cache["last_loaded_time"] = model_load_time
+        else:
+            print(f"{GREEN}Using cached model loaded at {model_cache['last_loaded_time']}.{RESET}")
+
+        return model_cache["model"]
 
 # features
 def features_extraction(binary_data):
@@ -152,8 +179,7 @@ def predict_class(binary_data, file_name):
     print(f"Process started at: {real_start_time}")
     
     # Load the pre-trained XGBoost model
-    loaded_model = xgb.Booster()
-    loaded_model.load_model("xgboost_model.model")
+    loaded_model = load_model()
     
     # Extract features and compute p-values
     test_start_time = time.time()
@@ -185,6 +211,9 @@ def predict_class(binary_data, file_name):
         # Retrain the model with the helper function's class
         retrain_data = result + [predicted_class_helper]  # Add the helper class label
         retrain_model(retrain_data)
+        retrain_data.append(file_name)
+        result_string = ",".join(map(str, retrain_data))
+        append_to_csv("combined_file.csv", result_string)
         print(f"{GREEN}Model retrained successfully with the helper's prediction.{RESET}")
     else:
         print(f"{GREEN}Predictions matched: No retraining needed.{RESET}")
@@ -209,7 +238,7 @@ def train_data(binary_data, file_name):
     file_name = remove_bin_extension(file_name)
     result_copy.append(file_name)
     result_string = ",".join(map(str, result_copy))
-    append_to_csv("final.csv", result_string)
+    append_to_csv("combined_file.csv", result_string)
     retrain_model(result_copy)
     
 
@@ -268,10 +297,11 @@ def retrain_model(new_data):
 
     # Set parameters (use the same ones used during initial training)
     params = {
-        "max_depth": 2,
-        "eta": 0.3,
+        "max_depth": 4,
+        "eta": 0.1,
         "objective": "multi:softprob",
-        "num_class": 7,  # Adjust based on the number of classes
+        "num_class": 7,
+        'eval_metric': 'mlogloss',
     }
 
     # Incrementally train the model with the new data
