@@ -244,73 +244,59 @@ def train_data(binary_data, file_name):
 
 def retrain_model(new_data):
     """
-    Train the XGBoost model with the new provided data.
-
+    Retrain the XGBoost model with a single row of new data.
+    
     Args:
-    - new_data (list): A list containing features and class for training.
-                       The last element in the list is the class label.
-
+    - new_data (list): A list of 16 feature values and 1 class label.
+                       The last element is the class label.
+    
     Returns:
     - None
     """
+    import os
 
-    # Load the existing model to get the feature importance
+    # Validate the input data
+    if len(new_data) != 17:
+        raise ValueError("new_data must contain 16 features and 1 class label.")
+    
+    # Load the existing model
+    model_path = "xgboost_model.model"
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file '{model_path}' not found.")
+    
     loaded_model = xgb.Booster()
-    loaded_model.load_model("xgboost_model.model")  # Use forward slash here
-
-    test_results = new_data[:16]  # First 16 elements are the test results
-    class_label = (
-        int(new_data[16]) - 1
-    )  # The 17th value is the class label (adjust to be 0-indexed)
-
-    print(
-        f"{CYAN}Training on new data with features: {test_results} and class: {class_label + 1}{RESET}"
-    )
-
-    # Get feature importance from the model (for calculating the weighted sum)
-    importance_dict = loaded_model.get_score(importance_type="gain")
-    test_names = [
-    "feature_1",
-    "feature_2",
-    "feature_3",
-    "feature_4",
-    "feature_5",
-    "feature_6",
-    "feature_7",
-    "feature_8",
-    "feature_9",
-    "feature_10",
-    "feature_11",
-    "feature_12",
-    "feature_13",
-    "feature_14",
-    "feature_15",
-    "feature_16"
-]
-
-    X_train = pd.DataFrame([test_results], columns=test_names)
-
-    y_train = pd.Series([class_label])  # Target class
-
-    # Convert to DMatrix for XGBoost training
-    dtrain = xgb.DMatrix(X_train, label=y_train)
-
-    # Set parameters (use the same ones used during initial training)
+    loaded_model.load_model(model_path)
+    
+    # Parse features and label from new_data
+    features = new_data[:-1]
+    label = int(new_data[-1]) - 1  # Convert to 0-indexed
+    
+    # Create a single-row DataFrame
+    feature_names = [f"feature_{i+1}" for i in range(16)]
+    single_row_df = pd.DataFrame([features], columns=feature_names)
+    single_row_df["class"] = label
+    
+    # Extract features (X) and label (y)
+    X_new = single_row_df.iloc[:, :-1]
+    y_new = single_row_df.iloc[:, -1]
+    
+    # Convert to DMatrix
+    dtrain = xgb.DMatrix(X_new, label=y_new)
+    
+    # Parameters for retraining
     params = {
         "max_depth": 4,
         "eta": 0.1,
         "objective": "multi:softprob",
         "num_class": 7,
-        'eval_metric': 'mlogloss',
+        "eval_metric": "mlogloss",
     }
-
-    # Incrementally train the model with the new data
-    print(f"{YELLOW}Updating XGBoost model with new data...{RESET}")
-    loaded_model = xgb.train(params, dtrain, num_boost_round=10, xgb_model=loaded_model)
+    
+     # Incrementally train
+    loaded_model = xgb.train(params, dtrain, num_boost_round=50, xgb_model=loaded_model)
 
     # Save the updated model
-    loaded_model.save_model("xgboost_model.model")  # Use forward slash here
-    print(f"{GREEN}Model updated and saved successfully with the new data.{RESET}")
+    loaded_model.save_model("xgboost_model.model")
 
 
 # update the csv
