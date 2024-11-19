@@ -209,11 +209,10 @@ def predict_class(binary_data, file_name):
         print(f"{YELLOW}Mismatch detected: AI predicted {predicted_class_ai}, Helper predicted {predicted_class_helper}. Retraining...{RESET}")
         
         # Retrain the model with the helper function's class
-        retrain_data = result + [predicted_class_helper]  # Add the helper class label
-        retrain_model(retrain_data)
-        retrain_data.append(file_name)
-        result_string = ",".join(map(str, retrain_data))
-        append_to_csv("combined_file.csv", result_string)
+        retrain_data = result + [predicted_class_helper]
+        
+        retrain_model(retrain_data,file_name)
+        
         print(f"{GREEN}Model retrained successfully with the helper's prediction.{RESET}")
     else:
         print(f"{GREEN}Predictions matched: No retraining needed.{RESET}")
@@ -242,47 +241,32 @@ def train_data(binary_data, file_name):
     retrain_model(result_copy)
     
 
-def retrain_model(new_data):
-    """
-    Retrain the XGBoost model with a single row of new data.
-    
-    Args:
-    - new_data (list): A list of 16 feature values and 1 class label.
-                       The last element is the class label.
-    
-    Returns:
-    - None
-    """
+def retrain_model(new_data,file_name):
     import os
+    import pandas as pd
 
     # Validate the input data
     if len(new_data) != 17:
         raise ValueError("new_data must contain 16 features and 1 class label.")
+
+    # Define the path to the CSV file that holds the dataset
+    dataset_file = "combined_file.csv"
+    new_data.append(file_name)
+    result_string = ",".join(map(str, new_data))
+    append_to_csv(dataset_file,result_string)
+
+    df=pd.read_csv("combined_file.csv")
     
-    # Load the existing model
-    model_path = "xgboost_model.model"
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model file '{model_path}' not found.")
+    print(df.info())
     
-    loaded_model = xgb.Booster()
-    loaded_model.load_model(model_path)
-    
-    # Parse features and label from new_data
-    features = new_data[:-1]
-    label = int(new_data[-1]) - 1  # Convert to 0-indexed
-    
-    # Create a single-row DataFrame
-    feature_names = [f"feature_{i+1}" for i in range(16)]
-    single_row_df = pd.DataFrame([features], columns=feature_names)
-    single_row_df["class"] = label
-    
-    # Extract features (X) and label (y)
-    X_new = single_row_df.iloc[:, :-1]
-    y_new = single_row_df.iloc[:, -1]
-    
-    # Convert to DMatrix
-    dtrain = xgb.DMatrix(X_new, label=y_new)
-    
+    # df.drop('Image Name',axis=1,inplace=True)
+
+    X = df.iloc[:, :-2]
+    y = df.iloc[:, -2].astype(int) - 1 
+
+    # Convert the dataset to DMatrix format, which XGBoost uses
+    dtrain = xgb.DMatrix(X, label=y)
+
     # Parameters for retraining
     params = {
         "max_depth": 4,
@@ -291,12 +275,15 @@ def retrain_model(new_data):
         "num_class": 7,
         "eval_metric": "mlogloss",
     }
-    
-     # Incrementally train
-    loaded_model = xgb.train(params, dtrain, num_boost_round=50, xgb_model=loaded_model)
+
+    # Train the model on the full dataset
+    print(f"{CYAN}Retraining model with updated dataset...{RESET}")
+    loaded_model = xgb.train(params, dtrain, num_boost_round=50)
 
     # Save the updated model
-    loaded_model.save_model("xgboost_model.model")
+    model_path = "xgboost_model.model"
+    loaded_model.save_model(model_path)
+    print(f"{GREEN}Model retrained and saved successfully.{RESET}")
 
 
 # update the csv
